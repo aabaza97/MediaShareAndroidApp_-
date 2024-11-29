@@ -60,4 +60,13 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.glide)
     implementation (libs.androidx.cardview)
+
+    // Retrofit
+    implementation (libs.retrofit)
+
+    // Gson Converter for Retrofit
+    implementation (libs.retrofit2.converter.gson)
+
+    // OkHttp3 Logging Interceptor
+    implementation (libs.logging.interceptor)
 }
