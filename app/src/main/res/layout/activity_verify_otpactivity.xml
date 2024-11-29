@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Verification Code"
+            android:textSize="24sp"
+            android:textAlignment="center"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Please enter the 6-digit code sent to your phone number"
+            android:textAlignment="center"
+            android:layout_marginBottom="16dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/otpEditText1"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:maxLength="1"
+                android:inputType="number"
+                android:textAlignment="center"/>
+
+            <EditText
+                android:id="@+id/otpEditText2"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:maxLength="1"
+                android:inputType="number"
+                android:textAlignment="center"/>
+
+            <EditText
+                android:id="@+id/otpEditText3"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:maxLength="1"
+                android:inputType="number"
+                android:textAlignment="center"/>
+
+            <EditText
+                android:id="@+id/otpEditText4"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:maxLength="1"
+                android:inputType="number"
+                android:textAlignment="center"/>
+
+            <EditText
+                android:id="@+id/otpEditText5"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:maxLength="1"
+                android:inputType="number"
+                android:textAlignment="center"/>
+
+            <EditText
+                android:id="@+id/otpEditText6"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:maxLength="1"
+                android:inputType="number"
+                android:textAlignment="center"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/verifyButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Verify"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/resendOtpText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Resend OTP"
+            android:textAlignment="center"
+            android:textColor="@android:color/holo_blue_dark"/>
+    </LinearLayout>
+</layout>
