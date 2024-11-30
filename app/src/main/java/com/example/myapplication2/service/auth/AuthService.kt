@@ -2,10 +2,10 @@ package com.example.myapplication2.service.auth
 import com.example.myapplication2.service.auth.request.LoginRequest
 import com.example.myapplication2.service.auth.request.SignupRequest
 import com.example.myapplication2.service.auth.request.VerifyEmailRequest
-import com.example.myapplication2.service.auth.response.EmptyResponse
+import com.example.myapplication2.service.EmptyResponse
 import com.example.myapplication2.service.auth.response.LoginResponse
 import com.example.myapplication2.service.auth.response.SignupResponse
-import com.example.myapplication2.service.auth.response.NetworkResponse
+import com.example.myapplication2.service.NetworkResponse
 import com.example.myapplication2.service.auth.response.RefreshTokenResponse
 import retrofit2.http.*
 

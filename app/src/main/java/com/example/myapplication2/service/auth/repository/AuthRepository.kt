@@ -8,7 +8,7 @@ import com.example.myapplication2.service.auth.request.LoginRequest
 import com.example.myapplication2.service.auth.request.SignupRequest
 import com.example.myapplication2.service.auth.request.VerifyEmailRequest
 import com.example.myapplication2.service.auth.response.LoginResponse
-import com.example.myapplication2.service.auth.response.NetworkResponse
+import com.example.myapplication2.service.NetworkResponse
 import com.example.myapplication2.service.auth.response.RefreshTokenResponse
 import com.example.myapplication2.service.auth.response.SignupResponse
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +35,7 @@ class AuthRepository(
     suspend fun register(
         email: String,
         otp: String
-    ): Result<SignupResponse> {
+    ): Result<SignupResponse?> {
         return withContext(Dispatchers.IO) {
             try {
                 val request = SignupRequest(email, otp)
@@ -49,7 +49,7 @@ class AuthRepository(
         }
     }
 
-    suspend fun login(email: String, password: String): Result<LoginResponse> {
+    suspend fun login(email: String, password: String): Result<LoginResponse?> {
         return withContext(Dispatchers.IO) {
             try {
                 val request = LoginRequest(email, password)
@@ -59,8 +59,8 @@ class AuthRepository(
                 when (response) {
                     is NetworkResponse.Success -> {
                         // Store tokens after successful login
-                        response.data.accessToken.let { tokenManager.saveAccessToken(it) }
-                        response.data.refreshToken.let { tokenManager.saveRefreshToken(it) }
+                        response.data?.accessToken?.let { tokenManager.saveAccessToken(it) }
+                        response.data?.refreshToken?.let { tokenManager.saveRefreshToken(it) }
                         Result.success(response.data)
                     }
                     is NetworkResponse.Failure -> throw Exception(response.error?.message)
@@ -94,7 +94,7 @@ class AuthRepository(
         }
     }
 
-    suspend fun refreshToken(): Result<RefreshTokenResponse> {
+    suspend fun refreshToken(): Result<RefreshTokenResponse?> {
         return withContext(Dispatchers.IO) {
             try {
                 val refreshToken = tokenManager.getRefreshToken() ?: return@withContext Result.failure(
@@ -103,7 +103,7 @@ class AuthRepository(
                 when (val response = authService.refreshToken("Bearer $refreshToken")) {
                     is NetworkResponse.Success -> {
                         // Update tokens after successful refresh
-                        response.data.accessToken.let { tokenManager.saveAccessToken(it) }
+                        response.data?.accessToken?.let { tokenManager.saveAccessToken(it) }
                         Result.success(response.data)
                     }
                     is NetworkResponse.Failure -> throw Exception(response.error?.message)

@@ -1,8 +1,8 @@
-package com.example.myapplication2.service.auth.response
+package com.example.myapplication2.service
 
 // Network Response wrapper
 sealed class NetworkResponse<out T> {
-    data class Success<out T>(val status: Int, val message: String, val data: T) : NetworkResponse<T>()
+    data class Success<out T>(val status: Int, val message: String, val data: T? = null) : NetworkResponse<T>()
     data class Failure<out T>(val error: NetworkError? = null) : NetworkResponse<T>()
 
     enum class NetworkError(val status: Int, val message: String) {

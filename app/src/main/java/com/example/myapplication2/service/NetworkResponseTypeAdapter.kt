@@ -1,6 +1,5 @@
 package com.example.myapplication2.service
 
-import com.example.myapplication2.service.auth.response.NetworkResponse
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.TypeAdapter
@@ -26,13 +25,17 @@ class NetworkResponseTypeAdapter<T>(
         return when {
             jsonElement.isJsonObject -> {
                 val jsonObject = jsonElement.asJsonObject
-                
+
                 // Check for success response
-                if (jsonObject.has("data")) {
-                    val value = gson.fromJson<T>(jsonObject.get("data"), typeOfT)
+                if (jsonObject.has("status") &&  jsonObject.get("status").asInt in 200..299) {
+                    val data = if (jsonObject.has("data")) {
+                        gson.fromJson<T>(jsonObject.get("data"), typeOfT)
+                    } else {
+                        null
+                    }
                     val status = jsonObject.get("status")?.asInt ?: 200
                     val message = jsonObject.get("message")?.asString ?: "Success"
-                    NetworkResponse.Success(status, message, value)
+                    NetworkResponse.Success(status, message, data)
                 } else {
                     // Handle failure case
                     val errorObj = jsonObject.getAsJsonObject("error")
