@@ -40,7 +40,7 @@ class AuthRepository(
             try {
                 val request = SignupRequest(email, otp)
                 when (val response = authService.register(request)) {
-                    is NetworkResponse.Success -> Result.success(response.data)
+                    is NetworkResponse.Success -> saveTokensAndRespond(response.data)
                     is NetworkResponse.Failure -> throw Exception(response.error?.message)
                 }
             } catch (e: Exception) {
@@ -57,12 +57,7 @@ class AuthRepository(
 
                 Log.d("AuthRepository", "Login response: $response")
                 when (response) {
-                    is NetworkResponse.Success -> {
-                        // Store tokens after successful login
-                        response.data?.accessToken?.let { tokenManager.saveAccessToken(it) }
-                        response.data?.refreshToken?.let { tokenManager.saveRefreshToken(it) }
-                        Result.success(response.data)
-                    }
+                    is NetworkResponse.Success -> saveTokensAndRespond(response.data)
                     is NetworkResponse.Failure -> throw Exception(response.error?.message)
                 }
             } catch (e: Exception) {
@@ -101,11 +96,7 @@ class AuthRepository(
                     IllegalStateException("No refresh token found")
                 )
                 when (val response = authService.refreshToken("Bearer $refreshToken")) {
-                    is NetworkResponse.Success -> {
-                        // Update tokens after successful refresh
-                        response.data?.accessToken?.let { tokenManager.saveAccessToken(it) }
-                        Result.success(response.data)
-                    }
+                    is NetworkResponse.Success -> saveTokensAndRespond(response.data)
                     is NetworkResponse.Failure -> throw Exception(response.error?.message)
                 }
             } catch (e: Exception) {
@@ -116,5 +107,22 @@ class AuthRepository(
 
     fun isUserLoggedIn(): Boolean {
         return tokenManager.getRefreshToken() != null
+    }
+
+    private fun <T> saveTokensAndRespond(response: T): Result<T?> {
+        when (response) {
+            is LoginResponse -> {
+                response.accessToken.let { tokenManager.saveAccessToken(it) }
+                response.refreshToken.let { tokenManager.saveRefreshToken(it) }
+            }
+            is SignupResponse -> {
+                response.accessToken.let { tokenManager.saveAccessToken(it) }
+                response.refreshToken.let { tokenManager.saveRefreshToken(it) }
+            }
+            is RefreshTokenResponse -> {
+                response.accessToken.let { tokenManager.saveAccessToken(it) }
+            }
+        }
+        return Result.success(response)
     }
 }
