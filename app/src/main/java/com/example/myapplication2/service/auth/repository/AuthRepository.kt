@@ -2,6 +2,7 @@ package com.example.myapplication2.service.auth.repository
 
 
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import com.example.myapplication2.service.auth.AuthService
 import com.example.myapplication2.service.auth.TokenManager
 import com.example.myapplication2.service.auth.request.LoginRequest
@@ -9,6 +10,8 @@ import com.example.myapplication2.service.auth.request.SignupRequest
 import com.example.myapplication2.service.auth.request.VerifyEmailRequest
 import com.example.myapplication2.service.auth.response.LoginResponse
 import com.example.myapplication2.service.NetworkResponse
+import com.example.myapplication2.service.auth.UserInfo
+import com.example.myapplication2.service.auth.UserInfoManager
 import com.example.myapplication2.service.auth.response.RefreshTokenResponse
 import com.example.myapplication2.service.auth.response.SignupResponse
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +19,8 @@ import kotlinx.coroutines.withContext
 
 class AuthRepository(
     private val authService: AuthService,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val userInfoManager: UserInfoManager
 ) {
     suspend fun verifyEmail(email: String, password: String, firstName: String, lastName: String): Result<Unit> {
         return withContext(Dispatchers.IO) {
@@ -40,7 +44,7 @@ class AuthRepository(
             try {
                 val request = SignupRequest(email, otp)
                 when (val response = authService.register(request)) {
-                    is NetworkResponse.Success -> saveTokensAndRespond(response.data)
+                    is NetworkResponse.Success -> saveInfoAndRespond(response.data)
                     is NetworkResponse.Failure -> throw Exception(response.error?.message)
                 }
             } catch (e: Exception) {
@@ -57,7 +61,7 @@ class AuthRepository(
 
                 Log.d("AuthRepository", "Login response: $response")
                 when (response) {
-                    is NetworkResponse.Success -> saveTokensAndRespond(response.data)
+                    is NetworkResponse.Success -> saveInfoAndRespond(response.data)
                     is NetworkResponse.Failure -> throw Exception(response.error?.message)
                 }
             } catch (e: Exception) {
@@ -79,6 +83,7 @@ class AuthRepository(
                     is NetworkResponse.Success -> {
                         // Clear tokens after successful logout
                         tokenManager.clearTokens()
+                        userInfoManager.clearUserInfo()
                         Result.success(Unit)
                     }
                     is NetworkResponse.Failure -> throw Exception(response.error?.message)
@@ -96,7 +101,7 @@ class AuthRepository(
                     IllegalStateException("No refresh token found")
                 )
                 when (val response = authService.refreshToken("Bearer $refreshToken")) {
-                    is NetworkResponse.Success -> saveTokensAndRespond(response.data)
+                    is NetworkResponse.Success -> saveInfoAndRespond(response.data)
                     is NetworkResponse.Failure -> throw Exception(response.error?.message)
                 }
             } catch (e: Exception) {
@@ -109,20 +114,26 @@ class AuthRepository(
         return tokenManager.getRefreshToken() != null
     }
 
-    private fun <T> saveTokensAndRespond(response: T): Result<T?> {
+    private fun <T> saveInfoAndRespond(response: T): Result<T?> {
         when (response) {
             is LoginResponse -> {
+                // Store tokens
+
                 response.accessToken.let { tokenManager.saveAccessToken(it) }
                 response.refreshToken.let { tokenManager.saveRefreshToken(it) }
+                // Store user info
+                userInfoManager.saveUserInfo(UserInfo(response))
             }
             is SignupResponse -> {
                 response.accessToken.let { tokenManager.saveAccessToken(it) }
                 response.refreshToken.let { tokenManager.saveRefreshToken(it) }
+                userInfoManager.saveUserInfo(UserInfo(response))
             }
             is RefreshTokenResponse -> {
                 response.accessToken.let { tokenManager.saveAccessToken(it) }
             }
         }
+
         return Result.success(response)
     }
 }

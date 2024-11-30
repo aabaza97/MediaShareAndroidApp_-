@@ -9,6 +9,7 @@ import com.example.myapplication2.R
 import com.example.myapplication2.databinding.ActivityLoginBinding
 import com.example.myapplication2.service.RetrofitClient
 import com.example.myapplication2.service.auth.TokenManager
+import com.example.myapplication2.service.auth.UserInfoManager
 import com.example.myapplication2.service.auth.repository.AuthRepository
 import kotlinx.coroutines.launch
 
@@ -24,7 +25,8 @@ class LoginActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
         val tokenManager = TokenManager(sharedPreferences)
         val authService = RetrofitClient.authApi
-        authRepository = AuthRepository(authService, tokenManager)
+        val userInfoManager = UserInfoManager(sharedPreferences)
+        authRepository = AuthRepository(authService, tokenManager, userInfoManager)
 
         // Bind the layout to the binding variable
         binding = DataBindingUtil.setContentView(this, R.layout.activity_login)

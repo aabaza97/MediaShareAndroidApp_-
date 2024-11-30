@@ -46,7 +46,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -67,6 +66,9 @@ dependencies {
 
     // Gson Converter for Retrofit
     implementation (libs.retrofit2.converter.gson)
+
+    // Moshi Converter for Retrofit
+    implementation(libs.moshi.kotlin)
 
     // OkHttp3 Logging Interceptor
     implementation (libs.logging.interceptor)

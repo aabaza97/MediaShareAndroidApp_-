@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.myapplication2.databinding.ActivityVerifyOtpactivityBinding
 import com.example.myapplication2.service.RetrofitClient
 import com.example.myapplication2.service.auth.TokenManager
+import com.example.myapplication2.service.auth.UserInfoManager
 import com.example.myapplication2.service.auth.repository.AuthRepository
 import kotlinx.coroutines.launch
 
@@ -25,7 +26,8 @@ class VerifyOTPActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
         val tokenManager = TokenManager(sharedPreferences)
         val authService = RetrofitClient.authApi
-        authRepository = AuthRepository(authService, tokenManager)
+        val userInfoManager = UserInfoManager(sharedPreferences)
+        authRepository = AuthRepository(authService, tokenManager, userInfoManager)
 
         // Get the email from the intent
         email = intent.getStringExtra("email") ?: ""

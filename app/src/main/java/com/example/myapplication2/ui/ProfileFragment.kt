@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.myapplication2.databinding.FragmentProfileBinding
 import com.example.myapplication2.service.RetrofitClient
 import com.example.myapplication2.service.auth.TokenManager
+import com.example.myapplication2.service.auth.UserInfoManager
 import com.example.myapplication2.service.auth.repository.AuthRepository
 import com.example.myapplication2.ui.LoginActivity
 import kotlinx.coroutines.launch
@@ -51,7 +52,8 @@ class ProfileFragment : Fragment() {
         val sharedPreferences = requireContext().getSharedPreferences("AuthPrefs", MODE_PRIVATE)
         val tokenManager = TokenManager(sharedPreferences)
         val authService = RetrofitClient.authApi
-        authRepository = AuthRepository(authService, tokenManager)
+        val userInfoManager = UserInfoManager(sharedPreferences)
+        authRepository = AuthRepository(authService, tokenManager, userInfoManager)
 
         // Setup views
         setupListView()
