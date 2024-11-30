@@ -19,8 +19,8 @@ import kotlinx.coroutines.withContext
 
 class AuthRepository(
     private val authService: AuthService,
-    private val tokenManager: TokenManager,
-    private val userInfoManager: UserInfoManager
+    val tokenManager: TokenManager,
+    val userInfoManager: UserInfoManager
 ) {
     suspend fun verifyEmail(email: String, password: String, firstName: String, lastName: String): Result<Unit> {
         return withContext(Dispatchers.IO) {
@@ -94,6 +94,7 @@ class AuthRepository(
         }
     }
 
+    private
     suspend fun refreshToken(): Result<RefreshTokenResponse?> {
         return withContext(Dispatchers.IO) {
             try {
@@ -114,11 +115,11 @@ class AuthRepository(
         return tokenManager.getRefreshToken() != null
     }
 
-    private fun <T> saveInfoAndRespond(response: T): Result<T?> {
+    private
+    fun <T> saveInfoAndRespond(response: T): Result<T?> {
         when (response) {
             is LoginResponse -> {
                 // Store tokens
-
                 response.accessToken.let { tokenManager.saveAccessToken(it) }
                 response.refreshToken.let { tokenManager.saveRefreshToken(it) }
                 // Store user info
@@ -135,5 +136,19 @@ class AuthRepository(
         }
 
         return Result.success(response)
+    }
+
+    /**
+     * Get the access token. If the access token is not available, refresh the token and return the new access token.
+     *
+     * @return The access token in the format "Bearer token"
+     */
+    suspend
+    fun getAuthToken(): String {
+        val token = tokenManager.getAccessToken() ?:
+        refreshToken().getOrNull()?.accessToken ?:
+        throw Exception("Failed to refresh token")
+
+        return "Bearer $token"
     }
 }

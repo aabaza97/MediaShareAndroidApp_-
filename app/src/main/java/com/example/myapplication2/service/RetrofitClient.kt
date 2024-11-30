@@ -1,6 +1,7 @@
 package com.example.myapplication2.service
 
 import com.example.myapplication2.service.auth.AuthService
+import com.example.myapplication2.service.media.MediaService
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -31,4 +32,11 @@ object RetrofitClient {
         .create(AuthService::class.java)
 
 
+    /** Media service */
+    val mediaApi: MediaService = Retrofit.Builder()
+        .baseUrl(MEDIA_BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create(gson))
+        .client(client)
+        .build()
+        .create(MediaService::class.java)
 }

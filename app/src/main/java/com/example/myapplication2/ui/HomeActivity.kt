@@ -13,11 +13,27 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import android.Manifest
+import android.content.Context
+import android.provider.OpenableColumns
+import android.util.Log
+import android.webkit.MimeTypeMap
+import androidx.core.net.toFile
+import androidx.lifecycle.lifecycleScope
+import com.example.myapplication2.service.RetrofitClient
+import com.example.myapplication2.service.auth.TokenManager
+import com.example.myapplication2.service.auth.UserInfoManager
+import com.example.myapplication2.service.auth.repository.AuthRepository
+import com.example.myapplication2.service.media.repository.MediaRepository
+import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 class HomeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHomeBinding
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
+    private lateinit var mediaRepository: MediaRepository
 
     // Permission launcher
     private val permissionLauncher = registerForActivityResult(
@@ -38,7 +54,7 @@ class HomeActivity : AppCompatActivity() {
     ) { uri: Uri? ->
         uri?.let {
             // Handle image selection
-            handleMediaSelection(it, isImage = true)
+            handleMediaSelection(it,false)
         }
     }
 
@@ -48,7 +64,7 @@ class HomeActivity : AppCompatActivity() {
     ) { uri: Uri? ->
         uri?.let {
             // Handle video selection
-            handleMediaSelection(it, isImage = false)
+            handleMediaSelection(it,true)
         }
     }
 
@@ -57,9 +73,18 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Initialize MediaRepository
+        val sharedPreferences = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
+        val userInfoManager = UserInfoManager(sharedPreferences)
+        val tokenManager = TokenManager(sharedPreferences)
+        val authService = RetrofitClient.authApi
+        val authRepository = AuthRepository(authService, tokenManager, userInfoManager)
+        val mediaService = RetrofitClient.mediaApi
+        mediaRepository = MediaRepository(mediaService, authRepository)
+
+
         // Set up the ViewPager and TabLayout
         setupViewPager()
-
         // setup listeners
         setupListeners()
 
@@ -87,7 +112,6 @@ class HomeActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.fab.setOnClickListener {
-//            showMediaSelectionDialog()
             checkStoragePermission()
         }
     }
@@ -105,16 +129,56 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun pickImage() {
-        imagePickerLauncher.launch("image/*")
+        imagePickerLauncher.launch("image/jpeg")
     }
 
     private fun pickVideo() {
-        videoPickerLauncher.launch("video/*")
+        videoPickerLauncher.launch("video/mp4")
     }
 
-    private fun handleMediaSelection(uri: Uri, isImage: Boolean) {
+    private fun handleMediaSelection(uri: Uri, isMovie: Boolean) {
         // Handle media selection
+        Toast.makeText(this, "Selected media: $uri", Toast.LENGTH_SHORT).show()
+
+        lifecycleScope.launch {
+            try {
+                val file = uri.toFile(this@HomeActivity)
+                val response =  if (isMovie) {
+                    mediaRepository.uploadVideo(file)
+                } else {
+                    mediaRepository.uploadImage(file)
+                }
+
+                when {
+                    response.isSuccess -> {
+                        response.getOrNull()?.let {
+                            Log.d("HomeActivity", "Media uploaded successfully: $it")
+                        } ?: Log.e("HomeActivity", "Failed to upload media", Exception("Upload response is null"))
+                    }
+                    else -> {
+                        Log.e("HomeActivity", "Failed to upload media", response.exceptionOrNull())
+                        Toast.makeText(this@HomeActivity, "Failed to upload media", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+
+
+            } catch (e: Exception) {
+                Log.e("HomeActivity", "Failed to upload media", e)
+                Toast.makeText(this@HomeActivity, "Failed to upload media", Toast.LENGTH_SHORT).show()
+            } finally {
+
+                // Toast
+                Toast.makeText(this@HomeActivity, "Media uploaded successfully", Toast.LENGTH_SHORT).show()
+                // Refresh the HomeFragment
+//                val fragment = supportFragmentManager.findFragmentByTag("f0")
+//                if (fragment != null && fragment.isVisible) {
+//                    (fragment as HomeFragment).refresh()
+//                }
+            }
+        }
     }
+
 
     private fun checkStoragePermission() {
         when {
@@ -166,4 +230,42 @@ class HomeActivity : AppCompatActivity() {
             }
         }
     }
+
+
+    fun Uri.toFile(context: Context): File {
+        // Check if the Uri scheme is content
+        if (scheme == "content") {
+            // Create a temporary file
+            val contentResolver = context.contentResolver
+            val mime = contentResolver.getType(this)
+            val fileExtension = mime?.let {
+                it.split("/")[1]
+            } // TODO: Should be done using MimeTypeMap and ContentResolver
+
+            val fileName = "temp_upload_file_${System.currentTimeMillis()}.${fileExtension ?: "tmp"}"
+            val file = File(context.cacheDir, fileName)
+
+            try {
+                // Copy content to the temporary file and append file extension
+                contentResolver.openInputStream(this)?.use { input ->
+                    FileOutputStream(file).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                return file
+            } catch (e: Exception) {
+                Log.e("MediaUpload", "Error converting content URI to file", e)
+                throw IOException("Could not create file from content URI", e)
+            }
+        }
+
+        // If it's already a file URI, convert directly
+        if (scheme == "file") {
+            return File(path ?: throw IllegalArgumentException("Invalid file path"))
+        }
+
+        throw IllegalArgumentException("Unsupported URI scheme: $scheme")
+    }
+
+
 }

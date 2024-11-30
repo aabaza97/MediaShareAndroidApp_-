@@ -25,10 +25,7 @@ class TokenManager(private val sharedPreferences: SharedPreferences) {
         val lastRefresh = sharedPreferences.getLong(LAST_TOKEN_REFRESH, 0)
         val currentTime = System.currentTimeMillis()
 
-        if (currentTime - lastRefresh > TTL) {
-            clearTokens()
-            return null
-        }
+        if (currentTime - lastRefresh > TTL) return null
 
         return sharedPreferences.getString(ACCESS_TOKEN_KEY, null)
     }
