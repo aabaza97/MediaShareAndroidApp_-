@@ -1,6 +1,7 @@
 package com.example.myapplication2.service.repository
 
 
+import android.util.Log
 import com.example.myapplication2.service.AuthService
 import com.example.myapplication2.service.TokenManager
 import com.example.myapplication2.service.request.LoginRequest
@@ -39,7 +40,7 @@ class AuthRepository(
             try {
                 val request = SignupRequest(email, otp)
                 when (val response = authService.register(request)) {
-                    is NetworkResponse.Success -> Result.success(response.value)
+                    is NetworkResponse.Success -> Result.success(response.data)
                     is NetworkResponse.Failure -> throw Exception(response.error?.message)
                 }
             } catch (e: Exception) {
@@ -52,16 +53,20 @@ class AuthRepository(
         return withContext(Dispatchers.IO) {
             try {
                 val request = LoginRequest(email, password)
-                when (val response = authService.login(request)) {
+                val response = authService.login(request)
+
+                Log.d("AuthRepository", "Login response: $response")
+                when (response) {
                     is NetworkResponse.Success -> {
                         // Store tokens after successful login
-                        response.value.accessToken.let { tokenManager.saveAccessToken(it) }
-                        response.value.refreshToken.let { tokenManager.saveRefreshToken(it) }
-                        Result.success(response.value)
+                        response.data.accessToken.let { tokenManager.saveAccessToken(it) }
+                        response.data.refreshToken.let { tokenManager.saveRefreshToken(it) }
+                        Result.success(response.data)
                     }
                     is NetworkResponse.Failure -> throw Exception(response.error?.message)
                 }
             } catch (e: Exception) {
+                Log.e("AuthRepository", "Login failed", e)
                 Result.failure(e)
             }
         }
@@ -98,8 +103,8 @@ class AuthRepository(
                 when (val response = authService.refreshToken("Bearer $refreshToken")) {
                     is NetworkResponse.Success -> {
                         // Update tokens after successful refresh
-                        response.value.accessToken.let { tokenManager.saveAccessToken(it) }
-                        Result.success(response.value)
+                        response.data.accessToken.let { tokenManager.saveAccessToken(it) }
+                        Result.success(response.data)
                     }
                     is NetworkResponse.Failure -> throw Exception(response.error?.message)
                 }

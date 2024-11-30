@@ -12,19 +12,19 @@ import retrofit2.http.*
 // Auth service interface
 interface AuthService {
     // base url: https://api.example.com
-    @POST("auth/emails/verify")
+    @POST("emails/verify")
     suspend fun verifyEmail(@Body request: VerifyEmailRequest): NetworkResponse<EmptyResponse>
 
-    @POST("auth/register")
+    @POST("register")
     suspend fun register(@Body request: SignupRequest): NetworkResponse<SignupResponse>
 
-    @POST("auth/login")
+    @POST("login")
     suspend fun login(@Body request: LoginRequest): NetworkResponse<LoginResponse>
 
-    @POST("auth/logout")
+    @POST("logout")
     suspend fun logout(@Header("Authorization") token: String): NetworkResponse<EmptyResponse>
 
-    @POST("auth/tokens/refresh")
+    @POST("tokens/refresh")
     suspend fun refreshToken(@Header("Authorization") token: String): NetworkResponse<RefreshTokenResponse>
 }
 
