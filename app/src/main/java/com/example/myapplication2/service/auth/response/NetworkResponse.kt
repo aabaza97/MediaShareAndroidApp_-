@@ -1,4 +1,4 @@
-package com.example.myapplication2.service.response
+package com.example.myapplication2.service.auth.response
 
 // Network Response wrapper
 sealed class NetworkResponse<out T> {

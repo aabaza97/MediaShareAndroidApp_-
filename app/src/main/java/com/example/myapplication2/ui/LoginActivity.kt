@@ -8,8 +8,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.myapplication2.R
 import com.example.myapplication2.databinding.ActivityLoginBinding
 import com.example.myapplication2.service.RetrofitClient
-import com.example.myapplication2.service.TokenManager
-import com.example.myapplication2.service.repository.AuthRepository
+import com.example.myapplication2.service.auth.TokenManager
+import com.example.myapplication2.service.auth.repository.AuthRepository
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {

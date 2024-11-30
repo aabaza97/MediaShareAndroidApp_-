@@ -1,4 +1,4 @@
-package com.example.myapplication2.service.response
+package com.example.myapplication2.service.auth.response
 
 import com.google.gson.annotations.SerializedName
 

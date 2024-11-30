@@ -1,8 +1,8 @@
-package com.example.myapplication2.service.response
+package com.example.myapplication2.service.auth.response
 
 import com.google.gson.annotations.SerializedName
 
-data class LoginResponse(
+data class SignupResponse(
     val id: Int,
     val email: String,
     val firstName: String,
@@ -10,5 +10,3 @@ data class LoginResponse(
     @SerializedName("access_token") val accessToken: String,
     @SerializedName("refresh_token") val refreshToken: String
 )
-
-

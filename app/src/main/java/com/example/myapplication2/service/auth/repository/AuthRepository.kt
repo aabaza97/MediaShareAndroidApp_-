@@ -1,16 +1,16 @@
-package com.example.myapplication2.service.repository
+package com.example.myapplication2.service.auth.repository
 
 
 import android.util.Log
-import com.example.myapplication2.service.AuthService
-import com.example.myapplication2.service.TokenManager
-import com.example.myapplication2.service.request.LoginRequest
-import com.example.myapplication2.service.request.SignupRequest
-import com.example.myapplication2.service.request.VerifyEmailRequest
-import com.example.myapplication2.service.response.LoginResponse
-import com.example.myapplication2.service.response.NetworkResponse
-import com.example.myapplication2.service.response.RefreshTokenResponse
-import com.example.myapplication2.service.response.SignupResponse
+import com.example.myapplication2.service.auth.AuthService
+import com.example.myapplication2.service.auth.TokenManager
+import com.example.myapplication2.service.auth.request.LoginRequest
+import com.example.myapplication2.service.auth.request.SignupRequest
+import com.example.myapplication2.service.auth.request.VerifyEmailRequest
+import com.example.myapplication2.service.auth.response.LoginResponse
+import com.example.myapplication2.service.auth.response.NetworkResponse
+import com.example.myapplication2.service.auth.response.RefreshTokenResponse
+import com.example.myapplication2.service.auth.response.SignupResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

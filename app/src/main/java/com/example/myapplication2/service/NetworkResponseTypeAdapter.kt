@@ -1,6 +1,6 @@
 package com.example.myapplication2.service
 
-import com.example.myapplication2.service.response.NetworkResponse
+import com.example.myapplication2.service.auth.response.NetworkResponse
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.TypeAdapter

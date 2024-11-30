@@ -1,4 +1,4 @@
-package com.example.myapplication2.service
+package com.example.myapplication2.service.auth
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
