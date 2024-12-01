@@ -164,22 +164,17 @@ class HomeActivity : AppCompatActivity() {
                     response.isSuccess -> {
                         response.getOrNull()?.let {
                             Log.d("HomeActivity", "Media uploaded successfully: $it")
+                            homeViewModel.getUploads()
                         } ?: Log.e("HomeActivity", "Failed to upload media", Exception("Upload response is null"))
                     }
                     else -> {
-                        Log.e("HomeActivity", "Failed to upload media", response.exceptionOrNull())
-                        Toast.makeText(this@HomeActivity, "Failed to upload media", Toast.LENGTH_SHORT).show()
+                        throw response.exceptionOrNull() ?: Exception("Failed to upload media")
                     }
                 }
-
-
 
             } catch (e: Exception) {
                 Log.e("HomeActivity", "Failed to upload media", e)
                 Toast.makeText(this@HomeActivity, "Failed to upload media", Toast.LENGTH_SHORT).show()
-            } finally {
-                // Toast
-                Toast.makeText(this@HomeActivity, "Media uploaded successfully", Toast.LENGTH_SHORT).show()
             }
         }
     }

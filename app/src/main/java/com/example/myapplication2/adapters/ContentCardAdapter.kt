@@ -20,9 +20,12 @@ class ContentCardAdapter(
         fun bind(contentCard: ContentCard) {
             binding.titleTextView.text = contentCard.title
 
+            // replace localhost in mediaURL with the actual IP address
+            val mediaUrl = contentCard.mediaUrl.replace("localhost", "10.0.2.2")
+
             // Load image or video thumbnail
             Glide.with(binding.root.context)
-                .load(contentCard.mediaUrl)
+                .load(mediaUrl)
                 .into(binding.mediaImageView)
 
             // Like button toggle
