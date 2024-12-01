@@ -6,6 +6,7 @@ import android.util.Log
 import com.example.myapplication2.service.NetworkResponse
 import com.example.myapplication2.service.auth.repository.AuthRepository
 import com.example.myapplication2.service.media.MediaService
+import com.example.myapplication2.service.media.response.GetUploadsResponse
 import com.example.myapplication2.service.media.util.MediaType
 import com.example.myapplication2.service.media.response.UploadResponse
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +56,20 @@ class MediaRepository (
         }
     }
 
+    suspend
+    fun getUploads(page: Int): Result<GetUploadsResponse?> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val token = authRepository.getAuthToken()
+                when (val response = mediaService.getUploads(token, page)) {
+                    is NetworkResponse.Success -> Result.success(response.data)
+                    is NetworkResponse.Failure -> throw Exception(response.error?.message)
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
 
     // Utility function to create MultipartBody.Part
     fun File.toMultipartBody(uploadType: MediaType): MultipartBody.Part {

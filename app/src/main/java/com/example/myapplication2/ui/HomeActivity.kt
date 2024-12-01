@@ -14,11 +14,10 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import android.Manifest
 import android.content.Context
-import android.provider.OpenableColumns
 import android.util.Log
-import android.webkit.MimeTypeMap
-import androidx.core.net.toFile
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.myapplication2.model.HomeViewModel
 import com.example.myapplication2.service.RetrofitClient
 import com.example.myapplication2.service.auth.TokenManager
 import com.example.myapplication2.service.auth.UserInfoManager
@@ -34,6 +33,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
     private lateinit var mediaRepository: MediaRepository
+    private lateinit var homeViewModel: HomeViewModel
 
     // Permission launcher
     private val permissionLauncher = registerForActivityResult(
@@ -73,6 +73,28 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Set up the repository
+        setupRepository()
+
+        // Set up the view model with the repository
+        homeViewModel = ViewModelProvider(
+            this,
+            HomeViewModel.provideFactory(mediaRepository)
+        )[HomeViewModel::class.java]
+
+        // Set up the ViewPager and TabLayout
+        setupViewPager()
+
+        // setup listeners
+        setupListeners()
+
+        homeViewModel.getUploads()
+
+        // Set the action bar title
+        supportActionBar?.title = "Media Share App"
+    }
+
+    private fun setupRepository() {
         // Initialize MediaRepository
         val sharedPreferences = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
         val userInfoManager = UserInfoManager(sharedPreferences)
@@ -81,17 +103,7 @@ class HomeActivity : AppCompatActivity() {
         val authRepository = AuthRepository(authService, tokenManager, userInfoManager)
         val mediaService = RetrofitClient.mediaApi
         mediaRepository = MediaRepository(mediaService, authRepository)
-
-
-        // Set up the ViewPager and TabLayout
-        setupViewPager()
-        // setup listeners
-        setupListeners()
-
-        // Set the action bar title
-        supportActionBar?.title = "Media Share App"
     }
-
 
     private fun setupViewPager() {
         viewPager = binding.viewPager
@@ -108,7 +120,6 @@ class HomeActivity : AppCompatActivity() {
             }
         }.attach()
     }
-
 
     private fun setupListeners() {
         binding.fab.setOnClickListener {
@@ -167,18 +178,11 @@ class HomeActivity : AppCompatActivity() {
                 Log.e("HomeActivity", "Failed to upload media", e)
                 Toast.makeText(this@HomeActivity, "Failed to upload media", Toast.LENGTH_SHORT).show()
             } finally {
-
                 // Toast
                 Toast.makeText(this@HomeActivity, "Media uploaded successfully", Toast.LENGTH_SHORT).show()
-                // Refresh the HomeFragment
-//                val fragment = supportFragmentManager.findFragmentByTag("f0")
-//                if (fragment != null && fragment.isVisible) {
-//                    (fragment as HomeFragment).refresh()
-//                }
             }
         }
     }
-
 
     private fun checkStoragePermission() {
         when {
@@ -230,7 +234,6 @@ class HomeActivity : AppCompatActivity() {
             }
         }
     }
-
 
     fun Uri.toFile(context: Context): File {
         // Check if the Uri scheme is content

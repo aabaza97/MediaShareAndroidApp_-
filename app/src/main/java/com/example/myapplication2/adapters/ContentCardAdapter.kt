@@ -2,6 +2,7 @@ package com.example.myapplication2.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.myapplication2.databinding.ContentCardItemBinding
@@ -10,6 +11,8 @@ import com.example.myapplication2.model.ContentCard
 class ContentCardAdapter(
     private val contentCards: List<ContentCard>
 ) : RecyclerView.Adapter<ContentCardAdapter.ContentCardViewHolder>() {
+
+    private var content = mutableListOf<ContentCard>()
 
     inner class ContentCardViewHolder(
         private val binding: ContentCardItemBinding
@@ -41,8 +44,38 @@ class ContentCardAdapter(
     }
 
     override fun onBindViewHolder(holder: ContentCardViewHolder, position: Int) {
-        holder.bind(contentCards[position])
+        holder.bind(content[position])
     }
 
-    override fun getItemCount() = contentCards.size
+    override fun getItemCount() = content.size
+
+    fun updateContentCards(newContentCards: List<ContentCard>) {
+        // Calculate differences using DiffUtil
+        val diffResult = DiffUtil.calculateDiff(MyDiffCallback(content, newContentCards))
+
+        // Update the internal list
+        content = newContentCards.toMutableList()
+
+        // Dispatch updates to RecyclerView
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    class MyDiffCallback(private val oldList: List<ContentCard>, private val newList: List<ContentCard>) :
+        DiffUtil.Callback() {
+        override fun getOldListSize(): Int {
+            return oldList.size
+        }
+
+        override fun getNewListSize(): Int {
+            return newList.size
+        }
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
+    }
 }
