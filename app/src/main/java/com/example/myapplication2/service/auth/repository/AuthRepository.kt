@@ -16,7 +16,9 @@ import com.example.myapplication2.service.auth.response.RefreshTokenResponse
 import com.example.myapplication2.service.auth.response.SignupResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Singleton
 
+@Singleton
 class AuthRepository(
     private val authService: AuthService,
     val tokenManager: TokenManager,

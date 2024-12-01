@@ -11,12 +11,15 @@ data class ContentCard (
     val title: String,
     val mediaUrl: String,
     val isVideo: Boolean,
-    var isLiked: Boolean = false
+    var isLiked: Boolean = false,
+    var like: (Int) -> Unit = { _ -> },
+    var disLike: (Int) -> Unit = { _ -> },
 ) {
     constructor(media: GetUploadsResponse.MediaUpload) : this(
         media.id,
         media.name,
         media.downloadURL,
-        media.type.lowercase() == MediaType.VIDEO.name.lowercase()
+        media.type.lowercase() == MediaType.VIDEO.name.lowercase(),
+        media.isLiked
     )
 }

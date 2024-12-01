@@ -22,6 +22,7 @@ import com.example.myapplication2.service.RetrofitClient
 import com.example.myapplication2.service.auth.TokenManager
 import com.example.myapplication2.service.auth.UserInfoManager
 import com.example.myapplication2.service.auth.repository.AuthRepository
+import com.example.myapplication2.service.like.LikeRepository
 import com.example.myapplication2.service.media.repository.MediaRepository
 import kotlinx.coroutines.launch
 import java.io.File
@@ -34,6 +35,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var tabLayout: TabLayout
     private lateinit var mediaRepository: MediaRepository
     private lateinit var homeViewModel: HomeViewModel
+    private lateinit var likeRepository: LikeRepository
 
     // Permission launcher
     private val permissionLauncher = registerForActivityResult(
@@ -76,12 +78,6 @@ class HomeActivity : AppCompatActivity() {
         // Set up the repository
         setupRepository()
 
-        // Set up the view model with the repository
-        homeViewModel = ViewModelProvider(
-            this,
-            HomeViewModel.provideFactory(mediaRepository)
-        )[HomeViewModel::class.java]
-
         // Set up the ViewPager and TabLayout
         setupViewPager()
 
@@ -103,6 +99,16 @@ class HomeActivity : AppCompatActivity() {
         val authRepository = AuthRepository(authService, tokenManager, userInfoManager)
         val mediaService = RetrofitClient.mediaApi
         mediaRepository = MediaRepository(mediaService, authRepository)
+
+        val likeService = RetrofitClient.likeApi
+        likeRepository = LikeRepository(likeService, authRepository)
+
+        // Set up the view model with the repository
+        homeViewModel = ViewModelProvider(
+            this,
+            HomeViewModel.provideFactory(mediaRepository, likeRepository)
+        )[HomeViewModel::class.java]
+
     }
 
     private fun setupViewPager() {

@@ -10,6 +10,9 @@ import com.example.myapplication2.adapters.ContentCardAdapter
 import com.example.myapplication2.databinding.FragmentHomeBinding
 import com.example.myapplication2.model.ContentCard
 import com.example.myapplication2.model.HomeViewModel
+import com.example.myapplication2.service.RetrofitClient
+import com.example.myapplication2.service.like.LikeRepository
+import com.example.myapplication2.service.like.LikeService
 import com.example.myapplication2.service.media.util.MediaType
 import com.example.myapplication2.ui.HomeActivity
 
@@ -30,6 +33,7 @@ class HomeFragment : Fragment() {
         // Initialize homeViewModel
         setupViewModelWithListeners()
 
+
         return binding.root
     }
 
@@ -44,7 +48,18 @@ class HomeFragment : Fragment() {
             uploads?.let {
                 cardAdapter.updateContentCards(
                     it.media.map { media ->
-                        ContentCard(media)
+                        val card = ContentCard(media)
+
+                        card.like = { mediaId ->
+                            homeViewModel.like(mediaId)
+                            Log.d("HomeFragment", "Liked media with ID: $mediaId")
+                        }
+                        card.disLike = { mediaId ->
+                            homeViewModel.disLike(mediaId)
+                            Log.d("HomeFragment", "UNLiked media with ID: $mediaId")
+                        }
+
+                        card
                     }
                 )
             }

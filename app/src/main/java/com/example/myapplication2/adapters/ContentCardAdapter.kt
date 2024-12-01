@@ -1,5 +1,6 @@
 package com.example.myapplication2.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -30,7 +31,14 @@ class ContentCardAdapter(
 
             // Like button toggle
             binding.likeButton.isChecked = contentCard.isLiked
+            Log.d("ContentCardAdapter", "isLiked: ${contentCard.isLiked}")
             binding.likeButton.setOnClickListener {
+                if (contentCard.isLiked) {
+                    contentCard.disLike(contentCard.id)
+                } else {
+                    contentCard.like(contentCard.id)
+                }
+
                 contentCard.isLiked = !contentCard.isLiked
                 binding.likeButton.isChecked = contentCard.isLiked
             }
